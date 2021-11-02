@@ -1,5 +1,5 @@
 import pandas as pd
-from utility_functions import __convert_to_pandas_list_tw, __find_interaction, __explode_dict
+from retweetcascade.utility_functions import __convert_to_pandas_list_tw, __find_interaction, __explode_dict
 
 
 def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
