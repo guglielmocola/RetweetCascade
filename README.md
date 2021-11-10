@@ -1,6 +1,6 @@
 [![SBD++](https://img.shields.io/badge/Available%20on-SoBigData%2B%2B-green)](https://sobigdata.d4science.org/group/sobigdata-gateway/explore?siteId=20371853)
 
-Retweet cascade estimation
+Retweet cascade estimation and analysis
 =========================================================
 A collection of tools for the estimation and analysis of a "retweet cascade", i.e., the tree structure describing how the original tweet was spread by retweeters. Concerning estimation, the library includes two methods: 
 * rt_cascade_interactions 
