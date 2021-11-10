@@ -34,11 +34,6 @@ def rt_cascade_info(cascade_df, root_id):
         #     level_n += 1
         disconnected_count += len(disc_list)
 
-    print('tot', len(cascade_df))
-    print('disc', disconnected_count)
-    ret['disconnected'] = disconnected_count
-    # print(disconnected_count/len(cascade_df))
-
     # 2. Count the number of levels (tree depth), and the number of nodes at each level.
     # Considers only connected nodes (i.e., nodes with a path to the root).
     level_counts = []

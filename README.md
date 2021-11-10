@@ -22,7 +22,7 @@ Use example
 
 File *use_example.py* provides examples on how the methods described above can be imported and used.
 
-To test the library, a small test dataset is available in the SoBigData++ platform at this link: XXX. The .zip file includes four .pickle files with retweets, a follower list, friend lists, and interactions among users.
+To test the library, a sample dataset is available in the SoBigData++ platform at this link: https://data.d4science.net/3FjC. The .zip file includes four .pickle files with retweets, root's follower list, retweeters' friend lists and interactions.
 
 References
 -------------------------------------------------
