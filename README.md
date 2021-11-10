@@ -30,5 +30,4 @@ Zola, P., Cola, G., Mazza, M. and Tesconi, M., 2020. Interaction strength analys
 
 License
 -------------------------------------------------
-
 Released under the terms of the MIT license (https://opensource.org/licenses/MIT).
