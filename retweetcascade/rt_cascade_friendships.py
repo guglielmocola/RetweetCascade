@@ -23,7 +23,6 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     :return: Returns a pandas DataFrame with columns source and target, where each
     row describes an edge of the retweet cascade graph. Disconnected nodes are included with a
     target equal to NaN.
-    A string with an error message is returned in case of error.
     """
 
     # Set keyword arguments, start from default values
