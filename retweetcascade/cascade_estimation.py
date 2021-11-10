@@ -26,7 +26,7 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     :keyword rt: Weight assigned to retweets (default 1.0)
 
     :return: Returns a pandas DataFrame with columns source and target, where each
-    row describes and edge of the retweet cascade graph. Disconnected nodes are included with
+    row describes an edge of the retweet cascade graph. Disconnected nodes are included with
     target equal to NaN.
     A string with an error message is returned in case of error.
     """
@@ -51,7 +51,7 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     if verbose:
         print('ROOT ID:', root_id, 'Retweets:', len(retweets))
 
-    # Prepare dataframes about retweets and tweets (interactions)
+    # Prepare DataFrames about retweets and tweets (interactions)
 
     # Dataframe with RETWEETS (in case of multiple retweets from the same subject, keep the oldest)
     df_rt = __convert_to_pandas_list_tw(retweets, ['created_at', 'user.id_str'])
@@ -66,7 +66,7 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     if verbose:
         print('Retweeters:', len(df_rt), 'Tweets:', len(df_tw))
 
-    # Find dataframes highlighting INTERACTIONS
+    # Find DataFrames highlighting INTERACTIONS
     # Each row is in the format <user.id_str, interacted_user_id_str, count>
     # where "interacted_user_id_str" is actually one of the three possible interaction fields
     # ('quoted_status.user.id_str', 'in_reply_to_user_id_str', or 'retweeted_status.user.id_str'),
@@ -79,7 +79,7 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     if verbose:
         print('Quotes:', len(df_int_qt), 'Replies:', len(df_int_re), 'Retweets:', len(df_int_rt))
 
-    # Merge different interactions into a single dataframe, using outer joins
+    # Merge different interactions into a single DataFrame, using outer joins
     # 1. retweets and quotes.
     df_int_all = pd.merge(df_int_rt, df_int_qt, how='outer',
                           left_on=['user.id_str', 'retweeted_status.user.id_str'],
@@ -117,7 +117,7 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     df_int_all = df_int_all.sort_values(by=['is'], ascending=False)
     df_int_final = df_int_all.groupby('user.id_str').first().reset_index()
 
-    # Convert into "cascade dataframe" with columns 'source' and 'target'
+    # Convert into "cascade DataFrame" with columns 'source' and 'target'
     # These format can be easily used to create a newtorkx object
     cascade_df = pd.DataFrame()
     cascade_df['source'] = df_int_final['user.id_str']
@@ -142,11 +142,11 @@ def rt_cascade_interactions(retweets, followers, tweets, **kwargs):
     # Remove duplicates
     direct_rt_list = list(set(direct_rt_list))
 
-    # Create dataframe for these users, then add it to the main one.
+    # Create DataFrame for these users, then add it to the main one.
     df_direct = pd.DataFrame(direct_rt_list, columns=['source'])
     df_direct['target'] = root_id
 
-    # Add "direct retweeters" to the "edges dataframe"
+    # Add "direct retweeters" to the "edges DataFrame"
     cascade_df = pd.concat([cascade_df, df_direct], ignore_index=True)
 
     # Use groupby source to remove duplicate entries, for instance if tweets from followers
@@ -190,7 +190,7 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     :keyword rt: Weight assigned to retweets (default 1.0)
 
     :return: Returns a pandas DataFrame with columns source and target, where each
-    row describes and edge of the retweet cascade graph. Disconnected nodes are included with
+    row describes an edge of the retweet cascade graph. Disconnected nodes are included with a
     target equal to NaN.
     A string with an error message is returned in case of error.
     """
@@ -203,9 +203,9 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     # Find the root from a retweet.
     root_id = retweets[0]['retweeted_status']['user']['id_str']
 
-    # Dataframe with RETWEETS (in case of multiple retweets from the same subject, keep the oldest)
-    df_rt = __convert_to_pandas_list_tw(retweets, ['id', 'created_at', 'user.id_str'])
-    df_rt = df_rt.sort_values(by=['id'], ascending=False)
+    # DataFrame with RETWEETS (in case of multiple retweets from the same subject, keep the oldest)
+    df_rt = __convert_to_pandas_list_tw(retweets, ['created_at', 'user.id_str'])
+    df_rt = df_rt.sort_values(by=['created_at'], ascending=False)
     df_rt = df_rt.groupby(df_rt['user.id_str']).last().reset_index()  # last is the oldest
 
     # List of retweeters who also are followers ("direct retweeters")
@@ -221,14 +221,14 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     # Remove duplicates
     direct_rt_list = list(set(direct_rt_list))
 
-    # Create dataframe for these users, then add it to the main one.
+    # Create DataFrame for these users, then add it to the main one.
     df_direct = pd.DataFrame(direct_rt_list, columns=['source'])
     df_direct['target'] = root_id
 
-    # Create rt dataframe with just non-follower retweeters.
+    # Create rt DataFrame with just non-follower retweeters.
     df_nf_rt = df_rt[~df_rt['user.id_str'].isin(direct_rt_list)].reset_index(drop=True)
 
-    # Create dataframe for friendships, with <user.id, friend.id> info
+    # Create DataFrame for friendships, with <user.id, friend.id> info
     df_friends = pd.DataFrame(__explode_dict(friends)).T
     df_friends.columns = ['follower_id_str', 'friend_id_str']
 
@@ -236,18 +236,18 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     df_merge1 = df_nf_rt.merge(df_friends, left_on='user.id_str', right_on='follower_id_str')
 
     # Second merge adds retweet information for friends (this time the merge needs to be with
-    # the entire retweets dataframe)
+    # the entire retweets DataFrame)
     df_merge2 = df_merge1.merge(df_rt, left_on='friend_id_str', right_on='user.id_str', suffixes=('', '_y'))
 
     # Remove rows where 'created_at_y' > 'created_at'
     df_merge2['delta'] = (df_merge2['created_at'] - df_merge2['created_at_y']).dt.total_seconds()
     df_merge2 = df_merge2[df_merge2['delta'] > 0]
 
-    df_final = df_merge2[['user.id_str', 'id', 'created_at', 'friend_id_str', 'created_at_y', 'delta']]
+    df_final = df_merge2[['user.id_str', 'created_at', 'friend_id_str', 'created_at_y', 'delta']]
     df_final = df_final.sort_values(by=['delta'], ascending=False)
     df_final = df_final.groupby(df_final['user.id_str']).last().reset_index()  # last is the oldest
 
-    # Prepare cascade dataframe based on friendship, then cat it with direct followers
+    # Prepare cascade DataFrame based on friendship, then cat it with direct followers
     cascade_df = pd.DataFrame()
     cascade_df['source'] = df_final['user.id_str']
     cascade_df['target'] = df_final['friend_id_str']
@@ -258,7 +258,7 @@ def rt_cascade_friendships(retweets, followers, friends, **kwargs):
     # Cat with direct retweeters (followers of root)
     cascade_df = pd.concat([cascade_df, df_direct], ignore_index=True)
 
-    # Finally, find disconnected nodes, and add a row with target NaN for them.
+    # Finally, find disconnected nodes, and add a row with NaN target for them.
     disconnected_nodes = set(nf_rt_list) - set(fb_rt_list)
 
     # print('dis:', len(disconnected_nodes), 'nf:', len(set(nf_rt_list)), 'fb-estimated', len(set(fb_rt_list)))
@@ -287,7 +287,7 @@ def rt_cascade_info(cascade_df, root_id):
     The following metrics are found: number of disconnected nodes; levels in the cascade tree (depth);
     contribution of single "influencers" in spreading the original message.
 
-    :param cascade_df: dataframe with the edges of a retweet cascade tree, as produced by the
+    :param cascade_df: DataFrame with the edges of a retweet cascade tree, as produced by the
         other rt_cascade_* functions.
     :param root_id: id_str of the cascade's root, i.e., the author of the original tweet.
 
@@ -296,9 +296,9 @@ def rt_cascade_info(cascade_df, root_id):
         'levels' is a list with one int per tree level, each being the number of nodes in that
             level. The first int in the list indicates the number of nodes that directly
             retweeted from the root.
-        'influencers' is a dataframe with columns ['influencer', 'rt_count'], where 'influencer'
+        'influencers' is a DataFrame with columns ['influencer', 'rt_count'], where 'influencer'
         is the id of a node and 'rt_count' indicates how many other nodes retweeted through that
-        influencer. The dataframe is ordered by 'rt_count' in descending order.
+        influencer. The DataFrame is ordered by 'rt_count' in descending order.
     """
 
     # Prepare return variable
@@ -338,7 +338,7 @@ def rt_cascade_info(cascade_df, root_id):
 
     ## 3. Find the "influencers" df, describing how different accounts contributed to spreading the
     # original tweet. Root ID is excluded from this evaluation.
-    # A dataframe is prepared with columns ['influencer', 'rt_count'], ordered by rt_count (descending).
+    # A DataFrame is prepared with columns ['influencer', 'rt_count'], ordered by rt_count (descending).
     # rt_count indicates how many retweets were made "through" the influencer.
     inf_df = cascade_df[cascade_df['target'] != root_id].groupby(['target']).count().reset_index()
     inf_df.sort_values(by=['source'], ascending=False, inplace=True)
