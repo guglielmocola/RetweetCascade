@@ -6,7 +6,7 @@ from retweetcascade import *
 """
 
 # Which technique should be used to estimate the cascade, interaction-based or friendship-based?
-interaction_based = False # set this to False to use the friendship-based technique
+interaction_based = True # set this to False to use the friendship-based technique
 
 if interaction_based:
     print('Interaction-based technique enabled')
